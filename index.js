@@ -423,9 +423,10 @@ function getRotationAngle(target) {
 
 
 
+let rev = 2;
 
 function skew3D(direct) {
-    let rotateValue = 360;
+    let rotateValue = 360 * rev;
 
     document.querySelector('.scale').style.display = 'none';
     timerId3D = setTimeout(function tick() {
