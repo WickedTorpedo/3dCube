@@ -203,7 +203,7 @@ class Parallelogram {
             right: document.querySelector('.scale .scale__increase')
         };
 
-        document.querySelector('.form').style.transform = 'scale(1)';
+        //document.querySelector('.form ').style.transform = 'scale(1)';
         size = 1;
 
         if (this.tools === "tools--2d") {
