@@ -1,10 +1,22 @@
 'use strict'
 
+
+// Глобальные параметры
+let rev = 1;    // к-во кругов 
+let size = 1;   // исходный размер
+let angle = {   // положение куба
+    rotateX: -30,
+    rotateY: -310,
+    rotateZ: -25,
+}
+let timerId2D;  // id таймера для 2D/3D
+let timerId3D;  // id таймера для 2D/3D
+
+
 // Точный тип объекта
 function type(object) {
     return Object.prototype.toString.call(object);
 }
-
 
 function convertRGBAtoHEX(channels) {
     const hexChannels = channels.map(entry => (`0${entry.toString(16)}`).slice(-2));
@@ -24,7 +36,6 @@ function parseRGBA(raw) {
     return channels;
 }
 
-/* custom-select [START] */
 function customSelect(model) {
     let x, i, j, l, ll, selElmnt, a, b, c;
     x = document.getElementsByClassName("custom-select");
@@ -119,19 +130,12 @@ function customSelect(model) {
 };
 
 
-
 function toolsChange(model) {
     let modeLTools = document.querySelector(".model .checkbox");
 
     modeLTools.onchange = function () {
         model.switchTools();
     }
-}
-
-let angle = {
-    rotateX: -30,
-    rotateY: -310,
-    rotateZ: -25,
 }
 
 class Parallelogram {
@@ -203,12 +207,12 @@ class Parallelogram {
             right: document.querySelector('.scale .scale__increase')
         };
 
-        //document.querySelector('.form ').style.transform = 'scale(1)';
+
         size = 1;
 
         if (this.tools === "tools--2d") {
             document.getElementById('figure').style.background = 'rgb(210, 210, 210)';
-
+            
 
             scaleButtons.left.innerHTML = '-';
             scaleButtons.right.innerHTML = '+';
@@ -225,10 +229,22 @@ class Parallelogram {
             let options3d = document.querySelectorAll('.figure-options .checkbox');
             options3dBlocks.forEach(item => item.style.opacity = '0.125');
             options3d.forEach(item => item.setAttribute('disabled', true));
+
+            // 
+            let form = document.querySelector('#figure .form.square__2d') ||
+                document.querySelector('#figure .form.rectangle__2d');
+
+            if (form) document.querySelector('.form').style.transform = 'scale(1)';
+            else {
+                form = document.querySelector('#figure .form.parallelogram__2d');
+                form.style.transform = 'scale(1) skewX(-30deg)';
+            }
+            //
         }
 
         if (this.tools === "tools--3d") {
             document.getElementById('figure').style.background = 'linear-gradient(#f0f0f0, #293f50)'; 
+            document.querySelector('.form').style.background = 'none'; // ***
 
             scaleButtons.left.innerHTML = null;
             scaleButtons.right.innerHTML = null;
@@ -245,7 +261,10 @@ class Parallelogram {
             options3dBlocks.forEach(item => item.style.opacity = '1');
             options3d.forEach(item => item.removeAttribute('disabled'));
 
-        }
+            //
+            document.querySelector('.form').style.transform = 'scale(1)';
+            //
+        }   
 
         // update type [END]
 
@@ -254,22 +273,14 @@ class Parallelogram {
 }
 
 
-
-
 function scale2D({type, scale}) {
 
     let currentWidth = document.querySelector(`.${type}`).offsetWidth;
     let currentHeight = document.querySelector(`.${type}`).offsetHeight;
 
-    /* ALTER
-    let maxWidth = 1900 || document.getElementById("figure").offsetWidth;
-    let maxHeight = 1600 ||document.getElementById("figure").offsetHeight;
-    */
-    
     let maxWidth  = document.getElementById("figure").offsetWidth;
     let maxHeight = document.getElementById("figure").offsetHeight;
     
-
     // 2D square
     if (type === 'square__2d' && scale === "increase") {
         if (currentWidth < maxWidth && currentHeight < maxHeight) {
@@ -284,8 +295,6 @@ function scale2D({type, scale}) {
             document.querySelector('.square__2d').style.height = currentHeight - 1 + 'px';
         }
     }   
-   
-
 
     // 2D rectangle
     if (type === 'rectangle__2d' && scale === "increase") {
@@ -302,8 +311,6 @@ function scale2D({type, scale}) {
         }
     }
 
-
-
     // 2D parallelogram
     if (type === 'parallelogram__2d' && scale === "increase") {
         if ((currentWidth*0.7) < maxWidth && currentHeight < maxHeight) {
@@ -318,11 +325,7 @@ function scale2D({type, scale}) {
             document.querySelector('.parallelogram__2d').style.height = currentHeight - 1 + 'px';
         }
     }
-    
 }
-
-let timerId2D;
-let timerId3D;
 
 function scale2DInc(model2D) {
     document.querySelector('.scale').style.display = 'none';
@@ -333,16 +336,11 @@ function scale2DInc(model2D) {
         timerId2D = setTimeout(tick, 10);
         document.querySelector('.model .checkbox').setAttribute('disabled', 'true');
 
-
         let parallelogramWidth = document.querySelector(`.${model2D.type}`).offsetWidth;
         let parallelogramHeight = document.querySelector(`.${model2D.type}`).offsetHeight;
 
         let figureWidth = document.getElementById('figure').offsetWidth;
         let figureHeight = document.getElementById('figure').offsetHeight;
-        /* ALTER
-        let figureWidth = 1900 || document.getElementById('figure').offsetWidth;
-        let figureHeight =  1600 ||document.getElementById('figure').offsetHeight;
-        */
 
         if (parallelogramWidth == figureWidth || parallelogramHeight == figureHeight) {
             document.querySelector('.model .checkbox').removeAttribute('disabled');
@@ -383,9 +381,6 @@ function scale2DDec(model) {
     }, 0);
 }
 
-
-
-
 function getRotationAngle(target) {
     const obj = window.getComputedStyle(target, null);
     const matrix = obj.getPropertyValue('-webkit-transform') ||
@@ -420,10 +415,6 @@ function getRotationAngle(target) {
     }
 }
 
-
-
-
-let rev = 2;
 
 function skew3D(direct) {
     let rotateValue = 360 * rev;
@@ -461,7 +452,6 @@ function skew3D(direct) {
 }
 
 
-let size = 1;
 
 function scrollSizeFigure(model) {
     document.onwheel = function(e) {
@@ -656,7 +646,6 @@ function options3D() {
 
 
 function viewOnMouse() {
-    
     let figure = document.getElementById('figure');
     let startPos = { x: 0, y: 0 };
 
@@ -729,6 +718,3 @@ function viewOnMouse() {
     viewOnMouse();          // // свободный обзор 3D фигурки с помощью мыши
 
 })()
-
-
-
